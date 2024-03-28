@@ -3,22 +3,17 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { auth } from "./firebase";
 import { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
+import AddPhotoPage from "./routes/add";
+import AlbumPage from "./routes/albums-album";
+import HomePage from "./routes/home";
+import LoginPage from "./routes/login";
+import NewAlbumPage from "./routes/albums-new";
+import PhotoPage from "./routes/albums-photo";
+import ProfilePage from "./routes/profile";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Home from "./routes/Home";
-import Login from "./routes/Login";
-import NewAlbum from "./routes/NewAlbum";
 
-const GlobalStyles = createGlobalStyle`${reset};
-  * {
-    box-sizing: border-box;
-  }
-
-  body {
-    margin: 0;
-  }
-`;
-
+const GlobalStyles = createGlobalStyle`${reset}`;
 const router = createBrowserRouter([
   {
     path: "/",
@@ -28,24 +23,28 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { path: "", element: <Home /> },
-      { path: "new", element: <NewAlbum /> },
+      { path: "", element: <HomePage /> },
+      { path: "albums/new", element: <NewAlbumPage /> },
+      { path: "albums/:albumId", element: <AlbumPage /> },
+      { path: "albums/:albumId/add", element: <AddPhotoPage /> },
+      { path: "albums/:albumId/:photoId", element: <PhotoPage /> },
+      { path: "profile", element: <ProfilePage /> },
     ],
   },
   {
     path: "/login",
-    element: <Login />,
+    element: <LoginPage />,
   },
 ]);
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const init = async () => {
-    await auth.authStateReady();
-    setIsLoading(false);
-  };
 
   useEffect(() => {
+    const init = async () => {
+      await auth.authStateReady();
+      setIsLoading(false);
+    };
     init();
   }, []);
 

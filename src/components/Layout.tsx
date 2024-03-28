@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { auth } from "../firebase";
 
@@ -11,15 +11,15 @@ export default function Layout() {
   };
 
   const handleNewAlbum = () => {
-    console.log(auth.currentUser)
-    console.log(auth.currentUser?.uid + " is trying to make a new album")
-    // navigate("/new");
-  }
+    navigate("/albums/new");
+  };
 
   return (
     <Wrapper>
       <Header>
+        <Link to="/">Home</Link>
         <button onClick={handleNewAlbum}>New Album</button>
+        <Link to="/profile">Profile</Link>
         <button onClick={handleLogout}>Logout</button>
       </Header>
       <Main>
