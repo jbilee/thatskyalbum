@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { auth, db, storage } from "../firebase";
 import { addDoc, collection, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import styled from "styled-components";
+import { resizeImage } from "../utils/resizer";
 import type { ChangeEvent, FormEvent } from "react";
 
-const AlbumForm = () => {
+export default function AlbumForm() {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [cover, setCover] = useState<File | null>(null);
@@ -18,8 +18,9 @@ const AlbumForm = () => {
     const user = auth.currentUser;
     if (!user) return;
     if (name === "") return;
+    let doc;
     try {
-      const doc = await addDoc(collection(db, "albums"), {
+      doc = await addDoc(collection(db, "albums"), {
         owner: user.displayName,
         ownerId: user.uid,
         name: name,
@@ -29,17 +30,16 @@ const AlbumForm = () => {
       });
 
       if (cover) {
+        const resizedCover = await resizeImage(cover, "cover");
         const locationRef = ref(storage, `covers/${doc.id}`);
-        const result = await uploadBytes(locationRef, cover);
-        console.log(result);
+        const result = await uploadBytes(locationRef, resizedCover);
         const url = await getDownloadURL(result.ref);
-        console.log(url);
         await updateDoc(doc, { cover: url });
       }
     } catch (e) {
       console.log(e);
     } finally {
-      navigate("/");
+      if (doc) navigate(`/albums/${doc.id}`);
     }
   };
 
@@ -63,13 +63,13 @@ const AlbumForm = () => {
   };
 
   return (
-    <Wrapper onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
       <div>
         <input type="text" value={name} onChange={handleName} />
         {name.length} / 20
       </div>
       <div>
-        <textarea onChange={handleDesc} value={desc}></textarea>
+        <textarea onChange={handleDesc} value={desc} />
         {desc.length} / 100
       </div>
       <div>
@@ -83,19 +83,6 @@ const AlbumForm = () => {
         <input type="file" onChange={handleFile} />
       </div>
       <input type="submit" value="Create" />
-    </Wrapper>
+    </form>
   );
-};
-
-const Wrapper = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 500px;
-
-  textarea {
-    resize: none;
-  }
-`;
-
-export default AlbumForm;
+}
