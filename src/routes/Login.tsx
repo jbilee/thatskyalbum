@@ -3,7 +3,7 @@ import { auth } from "../firebase";
 import { signInAnonymously, updateProfile } from "firebase/auth";
 import styled from "styled-components";
 
-export default function Login() {
+export default function LoginPage() {
   const navigate = useNavigate();
 
   if (auth.currentUser) return <Navigate to="/" />;
