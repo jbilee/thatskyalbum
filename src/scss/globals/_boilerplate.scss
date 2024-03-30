@@ -1,5 +1,25 @@
+@use "../util/" as util;
+
 * {
   box-sizing: border-box;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
+}
+
+h1 {
+  font-size: util.$largeTitle;
+}
+
+h2 {
+  font-size: util.$mediumTitle;
+}
+
+h3 {
+  font-size: util.$smallTitle;
 }
 
 a {
@@ -12,7 +32,11 @@ form {
   gap: 8px;
   width: 500px;
 
-  textarea {
-    resize: none;
-  }
+  // & #form__file {
+  //   display: none;
+  // }
+}
+
+textarea {
+  resize: none;
 }
