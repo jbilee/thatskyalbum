@@ -8,15 +8,18 @@ import {
   getDoc,
   updateDoc,
 } from "firebase/firestore";
+import { deleteObject, ref } from "firebase/storage";
 import styled from "styled-components";
 import Comments from "../components/Comments";
 import NewComment from "../components/NewComment";
 import PhotoNotFound from "../components/PhotoNotFound";
-import { auth, db } from "../firebase";
+import { auth, db, storage } from "../firebase";
 import { getDate } from "../utils/functions";
+import { PHOTO_UI } from "../utils/strings";
 
 type PhotoProps = {
-  uploader: string;
+  owner: string;
+  ownerId: string;
   photo: string;
   comments?: Array<{
     text: string;
@@ -29,7 +32,7 @@ type PhotoProps = {
   desc?: string;
 };
 
-export default function PhotoPage() {
+export default function PhotoDetailsPage() {
   const params = useParams();
   const [error, setError] = useState(false);
   const [photo, setPhoto] = useState<PhotoProps | null>(null);
@@ -56,7 +59,6 @@ export default function PhotoPage() {
     if (!user || comment === "" || !photo) return;
     const newComment = {
       uid: user.uid,
-      user: user.displayName,
       text: comment,
       time: getDate(),
       id: crypto.randomUUID(),
@@ -72,7 +74,7 @@ export default function PhotoPage() {
     );
   };
 
-  const handleDelete = async (id: string, uid: string) => {
+  const deleteComment = async (id: string, uid: string) => {
     if (!user || user.uid !== uid || !photo) return;
     const filteredComments = photo.comments!.filter((comment) => comment.id !== id);
     await updateDoc(photoRef, { comments: filteredComments });
@@ -80,9 +82,11 @@ export default function PhotoPage() {
   };
 
   const deletePhoto = async () => {
-    if (!user || !photo || user.uid !== photo.uploader) return;
+    if (!user || !photo || user.uid !== photo.ownerId) return;
+    const storageRef = ref(storage, `photos/${params.photoId}`);
     try {
       await deleteDoc(photoRef);
+      await deleteObject(storageRef);
     } catch (e) {
       console.log(e);
     } finally {
@@ -96,13 +100,13 @@ export default function PhotoPage() {
         <>
           <div>
             <img src={photo.photo} />
-            <button onClick={deletePhoto}>Delete photo</button>
+            <button onClick={deletePhoto}>{PHOTO_UI.delete}</button>
             <h2>{photo.title || "Untitled"}</h2>
             <p>{photo.desc}</p>
           </div>
           <div>
-            <h1>Comments</h1>
-            <Comments comments={photo.comments} currentUser={user} handleDelete={handleDelete} />
+            <h1>{PHOTO_UI.comments}</h1>
+            <Comments comments={photo.comments} currentUser={user} handleDelete={deleteComment} />
             <NewComment handleComment={handleComment} />
           </div>
         </>

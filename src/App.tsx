@@ -3,17 +3,20 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { auth } from "./firebase";
 import { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
-import AddPhotoPage from "./routes/add";
-import AlbumPage from "./routes/albums-album";
+import AddPhotoPage from "./routes/add-photo";
+import AlbumDetailsPage from "./routes/album-details";
+import CreateAlbumPage from "./routes/create-album";
 import HomePage from "./routes/home";
 import LoginPage from "./routes/login";
-import NewAlbumPage from "./routes/albums-new";
-import PhotoPage from "./routes/albums-photo";
+import PhotoDetailsPage from "./routes/photo-details";
 import ProfilePage from "./routes/profile";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-const GlobalStyles = createGlobalStyle`${reset}`;
+const GlobalStyles = createGlobalStyle`${reset}
+*, html {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}`;
 const router = createBrowserRouter([
   {
     path: "/",
@@ -24,10 +27,10 @@ const router = createBrowserRouter([
     ),
     children: [
       { path: "", element: <HomePage /> },
-      { path: "albums/new", element: <NewAlbumPage /> },
-      { path: "albums/:albumId", element: <AlbumPage /> },
+      { path: "albums/new", element: <CreateAlbumPage /> },
+      { path: "albums/:albumId", element: <AlbumDetailsPage /> },
       { path: "albums/:albumId/add", element: <AddPhotoPage /> },
-      { path: "albums/:albumId/:photoId", element: <PhotoPage /> },
+      { path: "albums/:albumId/:photoId", element: <PhotoDetailsPage /> },
       { path: "profile", element: <ProfilePage /> },
     ],
   },
