@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   DocumentData,
@@ -11,25 +11,20 @@ import {
 import { deleteObject, ref } from "firebase/storage";
 import styled from "styled-components";
 import Comments from "../components/Comments";
+import FramedImage from "../components/FramedImage";
 import NewComment from "../components/NewComment";
 import NotFound from "../components/NotFound";
 import { auth, db, storage } from "../firebase";
 import { getDate } from "../utils/functions";
 import { PHOTO_UI } from "../utils/strings";
+import type { CommentProps } from "../components/Comments";
 
 type PhotoProps = {
-  owner: string;
   ownerId: string;
   photo: string;
-  comments?: Array<{
-    text: string;
-    user: string;
-    time: number;
-    uid: string;
-    id: string;
-  }>;
-  title?: string;
-  desc?: string;
+  title: string;
+  desc: string;
+  comments?: CommentProps[];
 };
 
 export default function PhotoDetailsPage() {
@@ -55,7 +50,7 @@ export default function PhotoDetailsPage() {
 
   if (error) return <NotFound />;
 
-  const handleComment = async (comment: string) => {
+  const handleComment = async (comment: string, callback: Dispatch<SetStateAction<string>>) => {
     if (!user || comment === "" || !photo) return;
     const newComment = {
       uid: user.uid,
@@ -64,19 +59,25 @@ export default function PhotoDetailsPage() {
       id: crypto.randomUUID(),
     };
     const comments = photo.comments ? [...photo.comments, newComment] : [newComment];
-    await updateDoc(photoRef, { comments });
-    setPhoto(
-      (prev) =>
-        ({
-          ...prev,
-          comments,
-        } as PhotoProps)
-    );
+    try {
+      await updateDoc(photoRef, { comments });
+      setPhoto(
+        (prev) =>
+          ({
+            ...prev,
+            comments,
+          } as PhotoProps)
+      );
+      callback("");
+    } catch (e) {
+      console.log(e);
+      // Display toast
+    }
   };
 
   const deleteComment = async (id: string, uid: string) => {
-    if (!user || user.uid !== uid || !photo) return;
-    const filteredComments = photo.comments!.filter((comment) => comment.id !== id);
+    if (!user || user.uid !== uid || !photo || !photo.comments) return;
+    const filteredComments = photo.comments.filter((comment) => comment.id !== id);
     await updateDoc(photoRef, { comments: filteredComments });
     setPhoto((prev) => ({ ...prev, comments: filteredComments } as PhotoProps));
   };
@@ -99,7 +100,7 @@ export default function PhotoDetailsPage() {
       {photo ? (
         <>
           <div>
-            <img src={photo.photo} />
+            <FramedImage url={photo.photo} size="largePhoto" />
             <button onClick={deletePhoto}>{PHOTO_UI.delete}</button>
             <h2>{photo.title || "Untitled"}</h2>
             <p>{photo.desc}</p>

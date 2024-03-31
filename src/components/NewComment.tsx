@@ -1,7 +1,8 @@
 import { ChangeEvent, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 type NewCommentProps = {
-  handleComment: (input: string) => void;
+  handleComment: (input: string, callback: Dispatch<SetStateAction<string>>) => void;
 };
 
 export default function NewComment({ handleComment }: NewCommentProps) {
@@ -15,7 +16,7 @@ export default function NewComment({ handleComment }: NewCommentProps) {
   return (
     <div>
       <textarea value={comment} onChange={handleInput} />
-      <button onClick={() => handleComment(comment)}>Comment</button>
+      <button onClick={() => handleComment(comment, setComment)}>Comment</button>
     </div>
   );
 }
