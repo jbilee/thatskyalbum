@@ -1,26 +1,25 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { BsFillPersonFill } from "react-icons/bs";
-import Logo from "../assets/skylogo.png";
 import type { AlbumProps } from "../routes/home";
+import FramedImage from "./FramedImage";
+import Logo from "../assets/skylogo.png";
 
-export default function AlbumPreview({ id, name, owner, cover }: AlbumProps) {
+export default function AlbumPreview({ id, name, ownerId, cover }: AlbumProps) {
   return (
     <DomLink to={`/albums/${id}`}>
       <Wrapper>
         {cover ? (
-          <Image>
-            <img src={cover} alt={cover} />
-          </Image>
+          <FramedImage url={cover} size="album" />
         ) : (
           <Image>
-            <img src={Logo} alt={Logo} />
+            <img src={Logo} alt="Album using Sky logo as default cover" />
           </Image>
         )}
         <strong>{name}</strong>
         <div>
           <BsFillPersonFill />
-          {owner}
+          {ownerId}
         </div>
       </Wrapper>
     </DomLink>
@@ -50,7 +49,6 @@ const Image = styled.div`
   border-radius: 6px;
   & img {
     height: 150px;
-    object-fit: scale-down;
     align-self: center;
   }
 `;

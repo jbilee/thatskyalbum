@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { collection, deleteDoc, doc, getDoc, getDocs } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
 import styled from "styled-components";
+import FramedImage from "../components/FramedImage";
 import NotFound from "../components/NotFound";
 import { db, storage } from "../firebase";
 import { ALBUM_DELETION_WARNING, ALBUM_UI, EMPTY_ALBUM } from "../utils/strings";
@@ -100,7 +101,7 @@ export default function AlbumDetailsPage() {
             {photos.map(({ photo, id }, i) => (
               <Link to={`/albums/${params.albumId}/${id}`} key={i}>
                 <div>
-                  <img src={photo} width="200" />
+                  <FramedImage url={photo} size="smallPhoto" />
                 </div>
               </Link>
             ))}
