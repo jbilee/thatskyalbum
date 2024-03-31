@@ -12,7 +12,7 @@ import { deleteObject, ref } from "firebase/storage";
 import styled from "styled-components";
 import Comments from "../components/Comments";
 import NewComment from "../components/NewComment";
-import PhotoNotFound from "../components/PhotoNotFound";
+import NotFound from "../components/NotFound";
 import { auth, db, storage } from "../firebase";
 import { getDate } from "../utils/functions";
 import { PHOTO_UI } from "../utils/strings";
@@ -53,7 +53,7 @@ export default function PhotoDetailsPage() {
     fetchData();
   }, [params.albumId, params.photoId, photoRef]);
 
-  if (error) return <PhotoNotFound />;
+  if (error) return <NotFound />;
 
   const handleComment = async (comment: string) => {
     if (!user || comment === "" || !photo) return;

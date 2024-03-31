@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { collection, deleteDoc, doc, getDoc, getDocs } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
+import styled from "styled-components";
+import NotFound from "../components/NotFound";
 import { db, storage } from "../firebase";
 import { ALBUM_DELETION_WARNING, ALBUM_UI, EMPTY_ALBUM } from "../utils/strings";
 import type { CollectionReference, DocumentData, DocumentReference } from "firebase/firestore";
-import styled from "styled-components";
 
 type PhotoProps = {
   id: string;
@@ -29,6 +30,7 @@ export default function AlbumDetailsPage() {
     collection(db, `albums/${params.albumId}/photos`)
   );
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [photos, setPhotos] = useState<PhotoProps[]>([]);
   const [album, setAlbum] = useState<AlbumProps>(undefined);
   const navigate = useNavigate();
@@ -37,6 +39,7 @@ export default function AlbumDetailsPage() {
     const fetchData = async () => {
       const albumSnapshot = await getDoc(albumRef);
       const albumData = albumSnapshot.data();
+      if (!albumData) return setError(true);
       setAlbum(albumData as AlbumProps);
       const photosSnapshot = await getDocs(photosRef);
       const photos = photosSnapshot.docs.map((doc) => {
@@ -50,6 +53,7 @@ export default function AlbumDetailsPage() {
     fetchData();
   }, [photosRef, albumRef]);
 
+  if (error) return <NotFound />;
   if (isLoading) return null;
 
   const handleDelete = async () => {
