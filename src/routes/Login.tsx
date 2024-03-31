@@ -1,7 +1,8 @@
 import { Navigate, useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
+import { addDoc, collection } from "firebase/firestore";
 import { signInAnonymously, updateProfile } from "firebase/auth";
 import styled from "styled-components";
+import { auth, db } from "../firebase";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -11,11 +12,10 @@ export default function LoginPage() {
   const onClick = async () => {
     try {
       const credentials = await signInAnonymously(auth);
-      if (credentials.user.displayName === null) {
-        await updateProfile(credentials.user, {
-          displayName: `guest${Date.now()}`,
-        });
-      }
+      const name = `guest${Date.now().toString().slice(0, 4)}`;
+      await updateProfile(credentials.user, { displayName: name });
+      const newUser = { id: credentials.user.uid, name };
+      await addDoc(collection(db, "users"), newUser);
       navigate("/");
     } catch (e) {
       console.log(e);
