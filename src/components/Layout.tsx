@@ -1,24 +1,24 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { auth } from "../firebase";
+import { LOGOUT_WARNING } from "../utils/strings";
 
 export default function Layout() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    auth.signOut();
-    navigate("/login");
-  };
-
-  const handleNewAlbum = () => {
-    navigate("/albums/new");
+    const response = confirm(LOGOUT_WARNING);
+    if (response) {
+      auth.signOut();
+      navigate("/login");
+    }
   };
 
   return (
     <Wrapper>
       <Header>
         <Link to="/">Home</Link>
-        <button onClick={handleNewAlbum}>New Album</button>
+        <Link to="/albums/new">New Album</Link>
         <Link to="/profile">Profile</Link>
         <button onClick={handleLogout}>Logout</button>
       </Header>
@@ -39,6 +39,12 @@ const Header = styled.div`
   width: 100%;
   border-bottom: 1px solid #cacaca;
   padding: 24px;
+  display: flex;
+  gap: 20px;
+
+  & button {
+    margin-left: auto;
+  }
 `;
 
 const Main = styled.div`
