@@ -1,7 +1,11 @@
+import { useEffect, useState } from "react";
+import type { User } from "firebase/auth";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import styled from "styled-components";
 import { BsFillPersonFill } from "react-icons/bs";
 import { RiDeleteBin4Fill } from "react-icons/ri";
-import type { User } from "firebase/auth";
+import { OwnerProps } from "../routes/home";
+import { db } from "../firebase";
 
 type CommentsProps = {
   comments: CommentProps[] | undefined;
@@ -9,8 +13,7 @@ type CommentsProps = {
   handleDelete: (id: string, uid: string) => void;
 };
 
-type CommentProps = {
-  user: string;
+export type CommentProps = {
   uid: string;
   text: string;
   time: number;
@@ -18,23 +21,53 @@ type CommentProps = {
 };
 
 export default function Comments({ comments, currentUser, handleDelete }: CommentsProps) {
+  const [commentOwners, setCommentOwners] = useState<OwnerProps[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!comments || comments.length === 0) return setIsLoading(false);
+
+    const fetchData = async () => {
+      const commentOwners: string[] = [];
+      comments?.forEach(({ uid }) => {
+        if (!commentOwners.includes(uid)) commentOwners.push(uid);
+      });
+      const ownerQuery = query(collection(db, "users"), where("id", "in", commentOwners));
+      const ownerSnapshot = await getDocs(ownerQuery);
+      const owners = ownerSnapshot.docs.map((doc) => doc.data() as OwnerProps);
+      setCommentOwners(owners);
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, [comments]);
   return (
     <Wrapper>
-      <Container>
-        {comments?.map(({ user, text, time, uid, id }, i) => (
-          <>
-            <span>
-              <BsFillPersonFill />
-              {user}
-            </span>
-            <Comment key={i}>{text}</Comment>
-            {currentUser?.uid === uid ? (
-              <RiDeleteBin4Fill onClick={() => handleDelete(id, uid)} />
-            ) : null}
-            {time}
-          </>
-        ))}
-      </Container>
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : (
+        <Container>
+          {comments && comments.length > 0
+            ? comments.map(({ text, time, uid, id }, i) => {
+                const displayName =
+                  commentOwners.find((owner) => owner.id === uid)?.name ?? "Anonymous";
+                return (
+                  <>
+                    <span>
+                      <BsFillPersonFill />
+                      {displayName}
+                    </span>
+                    <Comment key={i}>{text}</Comment>
+                    {currentUser?.uid === uid ? (
+                      <RiDeleteBin4Fill onClick={() => handleDelete(id, uid)} />
+                    ) : null}
+                    {time}
+                  </>
+                );
+              })
+            : null}
+        </Container>
+      )}
     </Wrapper>
   );
 }
@@ -55,7 +88,7 @@ const Container = styled.div`
 
 const Comment = styled.div`
   border-radius: 6px;
-  background: #866767;
+  background: #edeff1;
   padding: 12px;
   margin-left: auto;
 `;
