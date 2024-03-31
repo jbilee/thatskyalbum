@@ -2,7 +2,7 @@ import FileResizer from "react-image-file-resizer";
 
 const RESIZER_OPTIONS = {
   cover: {
-    maxWidth: 1000,
+    maxWidth: 600,
     maxHeight: 200,
     format: "JPEG",
     quality: 80,
@@ -12,7 +12,7 @@ const RESIZER_OPTIONS = {
     maxWidth: 1000,
     maxHeight: 700,
     format: "JPEG",
-    quality: 100,
+    quality: 95,
     rotation: 0,
   },
 };
@@ -33,14 +33,7 @@ const getResizerOptions = (obj: ResizerProps): ResizerTuple => {
 
 export const resizeImage = async (image: File, type: string) => {
   return new Promise<Blob>((resolve) => {
-    const options = getResizerOptions(
-      RESIZER_OPTIONS[type as keyof typeof RESIZER_OPTIONS]
-    );
-    FileResizer.imageFileResizer(
-      image,
-      ...options,
-      (resized) => resolve(resized as Blob),
-      "blob"
-    );
+    const options = getResizerOptions(RESIZER_OPTIONS[type as keyof typeof RESIZER_OPTIONS]);
+    FileResizer.imageFileResizer(image, ...options, (resized) => resolve(resized as Blob), "blob");
   });
 };
