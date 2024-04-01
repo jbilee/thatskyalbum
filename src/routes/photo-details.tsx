@@ -101,7 +101,9 @@ export default function PhotoDetailsPage() {
         <>
           <div>
             <FramedImage url={photo.photo} size="largePhoto" />
-            <button onClick={deletePhoto}>{PHOTO_UI.delete}</button>
+            {user?.uid === photo.ownerId ? (
+              <button onClick={deletePhoto}>{PHOTO_UI.delete}</button>
+            ) : null}
             <h2>{photo.title || "Untitled"}</h2>
             <p>{photo.desc}</p>
           </div>
