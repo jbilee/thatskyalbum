@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
+  "include": ["src", "_wip/Test.tsx", "_wip/Canvas.tsx", "_wip/Cropper.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
