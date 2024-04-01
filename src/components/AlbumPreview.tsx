@@ -1,28 +1,27 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { BsFillPersonFill } from "react-icons/bs";
 import type { AlbumProps } from "../routes/home";
 import FramedImage from "./FramedImage";
+import UserNameTag from "./UserNameTag";
 import Logo from "../assets/skylogo.png";
 
 export default function AlbumPreview({ id, name, ownerId, cover }: AlbumProps) {
+  const navigate = useNavigate();
+  const handleClick = () => {
+    navigate(`/albums/${id}`);
+  };
   return (
-    <DomLink to={`/albums/${id}`}>
-      <Wrapper>
-        {cover ? (
-          <FramedImage url={cover} size="album" />
-        ) : (
-          <Image>
-            <img src={Logo} alt="Album using Sky logo as default cover" />
-          </Image>
-        )}
-        <strong>{name}</strong>
-        <div>
-          <BsFillPersonFill />
-          {ownerId}
-        </div>
-      </Wrapper>
-    </DomLink>
+    <Wrapper onClick={handleClick}>
+      {cover ? (
+        <FramedImage url={cover} size="album" />
+      ) : (
+        <Image>
+          <img src={Logo} alt="Album using Sky logo as default cover" />
+        </Image>
+      )}
+      <strong>{name}</strong>
+      <UserNameTag name={ownerId} />
+    </Wrapper>
   );
 }
 
@@ -52,16 +51,3 @@ const Image = styled.div`
     align-self: center;
   }
 `;
-
-const DomLink = styled(Link)`
-  & a {
-    text-decoration: none;
-    color: red;
-  }
-`;
-
-// const Desc = styled.div`
-//   display: flex;
-//   justify-content: space-between;
-//   width: 100%;
-// `;

@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import type { User } from "firebase/auth";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import styled from "styled-components";
-import { BsFillPersonFill } from "react-icons/bs";
 import { RiDeleteBin4Fill } from "react-icons/ri";
-import { OwnerProps } from "../routes/home";
+import UserNameTag from "./UserNameTag";
 import { db } from "../firebase";
+import type { OwnerProps } from "../routes/home";
 
 type CommentsProps = {
   comments: CommentProps[] | undefined;
@@ -53,10 +53,7 @@ export default function Comments({ comments, currentUser, handleDelete }: Commen
                   commentOwners.find((owner) => owner.id === uid)?.name ?? "Anonymous";
                 return (
                   <>
-                    <span>
-                      <BsFillPersonFill />
-                      {displayName}
-                    </span>
+                    <UserNameTag name={displayName} />
                     <Comment key={i}>{text}</Comment>
                     {currentUser?.uid === uid ? (
                       <RiDeleteBin4Fill onClick={() => handleDelete(id, uid)} />
