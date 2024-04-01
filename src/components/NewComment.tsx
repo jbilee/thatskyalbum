@@ -1,5 +1,5 @@
 import { ChangeEvent, useState } from "react";
-import type { Dispatch, SetStateAction } from "react";
+import type { Dispatch, KeyboardEvent, SetStateAction } from "react";
 
 type NewCommentProps = {
   handleComment: (input: string, callback: Dispatch<SetStateAction<string>>) => void;
@@ -13,10 +13,20 @@ export default function NewComment({ handleComment }: NewCommentProps) {
     if (input.length > 100) return;
     setComment(input);
   };
+
+  const handleCtrlEnter = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.ctrlKey && e.key === "Enter") return handleComment(comment, setComment);
+  };
+
   return (
-    <div>
-      <textarea value={comment} onChange={handleInput} />
-      <button onClick={() => handleComment(comment, setComment)}>Comment</button>
-    </div>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleComment(comment, setComment);
+      }}
+    >
+      <textarea value={comment} onChange={handleInput} onKeyDown={handleCtrlEnter} />
+      <input type="submit" value="Comment" />
+    </form>
   );
 }

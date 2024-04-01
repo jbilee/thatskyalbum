@@ -91,4 +91,5 @@ const Comment = styled.div`
   background: #edeff1;
   padding: 12px;
   margin-left: auto;
+  white-space: pre-wrap;
 `;
