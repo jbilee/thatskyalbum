@@ -1,53 +1,72 @@
 import { useEffect, useState } from "react";
-import {
-  collection,
-  getDocs,
-  or,
-  orderBy,
-  query,
-  where,
-} from "firebase/firestore";
+import { Navigate } from "react-router-dom";
+import { collection, getDocs, or, orderBy, query, where } from "firebase/firestore";
 import styled from "styled-components";
 import AlbumPreview from "../components/AlbumPreview";
 import { auth, db } from "../firebase";
 
 export type AlbumProps = {
   id: string;
-  owner: string;
+  ownerId: string;
   name: string;
   cover?: string;
+};
+
+export type OwnerProps = {
+  id: string;
+  name: string;
 };
 
 export default function HomePage() {
   const user = auth.currentUser;
   const [albums, setAlbums] = useState<AlbumProps[]>([]);
+  const [albumOwners, setAlbumOwners] = useState<OwnerProps[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedData = query(
-        collection(db, "albums"),
-        or(where("ownerId", "==", user?.uid), where("private", "==", false)),
-        orderBy("timeCreated", "asc")
-      );
+      try {
+        const albumQuery = query(
+          collection(db, "albums"),
+          or(where("ownerId", "==", user?.uid), where("isPrivate", "==", false)),
+          orderBy("timeCreated", "asc")
+        );
+        const albumSnapshot = await getDocs(albumQuery);
+        const albums = albumSnapshot.docs.map((doc) => {
+          const { ownerId, name, cover } = doc.data();
+          return { ownerId, name, cover, id: doc.id };
+        });
 
-      const snapshot = await getDocs(fetchedData);
-      const albums = snapshot.docs.map((doc) => {
-        const { owner, name, cover } = doc.data();
-        return { owner, name, cover, id: doc.id };
-      });
-      console.log(albums);
-      setAlbums(albums);
+        const albumOwners: string[] = [];
+        albums.forEach(({ ownerId }) => {
+          if (!albumOwners.includes(ownerId)) albumOwners.push(ownerId);
+        });
+        const ownerQuery = query(collection(db, "users"), where("id", "in", albumOwners));
+        const ownerSnapshot = await getDocs(ownerQuery);
+        const owners = ownerSnapshot.docs.map((doc) => doc.data() as OwnerProps);
+        setAlbums(albums);
+        setAlbumOwners(owners);
+      } catch (e) {
+        console.log(e);
+      }
     };
 
     fetchData();
   }, [user?.uid]);
 
-  return (
+  return user ? (
     <List>
-      {albums.map(({ owner, name, cover, id }, i) => (
-        <AlbumPreview key={i} id={id} name={name} owner={owner} cover={cover} />
+      {albums.map(({ ownerId, name, cover, id }, i) => (
+        <AlbumPreview
+          key={i}
+          id={id}
+          name={name}
+          ownerId={albumOwners.find((owner) => owner.id === ownerId)?.name ?? "Unknown"}
+          cover={cover}
+        />
       ))}
     </List>
+  ) : (
+    <Navigate to="/login" />
   );
 }
 
