@@ -1,4 +1,4 @@
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { doc, setDoc } from "firebase/firestore";
 import { signInAnonymously, updateProfile } from "firebase/auth";
 import styled from "styled-components";
@@ -12,7 +12,7 @@ export default function LoginPage() {
   const onClick = async () => {
     try {
       const credentials = await signInAnonymously(auth);
-      const name = `guest${Date.now().toString().slice(0, 4)}`;
+      const name = `guest${Date.now().toString().slice(0, 6)}`;
       await updateProfile(credentials.user, { displayName: name });
       const newUser = { id: credentials.user.uid, name };
       await setDoc(doc(db, "users", credentials.user.uid), newUser);
@@ -25,7 +25,9 @@ export default function LoginPage() {
   return (
     <Wrapper>
       <Button onClick={onClick}>Guest Login</Button>
-      <Button>Create Account</Button>
+      <Link to="/register">
+        <Button>Create Account</Button>
+      </Link>
     </Wrapper>
   );
 }
