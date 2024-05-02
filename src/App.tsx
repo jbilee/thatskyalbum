@@ -10,6 +10,7 @@ import HomePage from "./routes/home";
 import LoginPage from "./routes/login";
 import PhotoDetailsPage from "./routes/photo-details";
 import ProfilePage from "./routes/profile";
+import RegistrationPage from "./routes/register";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <LoginPage />,
+  },
+  {
+    path: "/register",
+    element: <RegistrationPage />,
   },
 ]);
 
