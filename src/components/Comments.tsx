@@ -49,17 +49,14 @@ export default function Comments({ comments, currentUser, handleDelete }: Commen
         <Container>
           {comments && comments.length > 0
             ? comments.map(({ text, time, uid, id }, i) => {
-                const displayName =
-                  commentOwners.find((owner) => owner.id === uid)?.name ?? "Anonymous";
+                const displayName = commentOwners.find((owner) => owner.id === uid)?.name ?? "Anonymous";
                 return (
-                  <>
+                  <div key={i}>
                     <UserNameTag name={displayName} />
-                    <Comment key={i}>{text}</Comment>
-                    {currentUser?.uid === uid ? (
-                      <RiDeleteBin4Fill onClick={() => handleDelete(id, uid)} />
-                    ) : null}
+                    <Comment>{text}</Comment>
+                    {currentUser?.uid === uid ? <RiDeleteBin4Fill onClick={() => handleDelete(id, uid)} /> : null}
                     {time}
-                  </>
+                  </div>
                 );
               })
             : null}
