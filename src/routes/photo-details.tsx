@@ -1,13 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  DocumentData,
-  DocumentReference,
-  deleteDoc,
-  doc,
-  getDoc,
-  updateDoc,
-} from "firebase/firestore";
+import { DocumentData, DocumentReference, deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
 import styled from "styled-components";
 import Comments from "../components/Comments";
@@ -100,10 +93,8 @@ export default function PhotoDetailsPage() {
       {photo ? (
         <>
           <div>
-            <FramedImage url={photo.photo} size="largePhoto" />
-            {user?.uid === photo.ownerId ? (
-              <button onClick={deletePhoto}>{PHOTO_UI.delete}</button>
-            ) : null}
+            <FramedImage url={photo.photo} size="largePhoto" cursorType="default" />
+            {user?.uid === photo.ownerId ? <button onClick={deletePhoto}>{PHOTO_UI.delete}</button> : null}
             <h2>{photo.title || "Untitled"}</h2>
             <p>{photo.desc}</p>
           </div>

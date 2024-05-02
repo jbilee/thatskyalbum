@@ -90,7 +90,7 @@ export default function AlbumDetailsPage() {
         <Photos>
           {photos.map(({ photo, id }, i) => (
             <div key={i} onClick={() => navigate(`/albums/${params.albumId}/${id}`)}>
-              <FramedImage key={i} url={photo} size="smallPhoto" />
+              <FramedImage key={i} url={photo} size="smallPhoto" cursorType="pointer" />
             </div>
           ))}
         </Photos>
