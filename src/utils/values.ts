@@ -5,8 +5,8 @@ export const IMAGE_SIZES = {
     radius: "6px",
   },
   smallPhoto: {
-    width: "200px",
-    height: "95px",
+    width: "100%",
+    height: "100%",
     radius: "0",
   },
   largePhoto: {
@@ -14,4 +14,10 @@ export const IMAGE_SIZES = {
     height: "460px",
     radius: "30px",
   },
+};
+
+export const SIZES = {
+  mobile: "300px",
+  tablet: "400px",
+  desktop: "500px",
 };

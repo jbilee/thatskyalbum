@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { collection, deleteDoc, doc, getDoc, getDocs } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
 import styled from "styled-components";
 import FramedImage from "../components/FramedImage";
 import NotFound from "../components/NotFound";
-import { db, storage } from "../firebase";
+import { auth, db, storage } from "../firebase";
 import { ALBUM_DELETION_WARNING, ALBUM_UI, EMPTY_ALBUM } from "../utils/strings";
 import type { CollectionReference, DocumentData, DocumentReference } from "firebase/firestore";
 
@@ -14,26 +14,25 @@ type PhotoProps = {
   photo: string;
 };
 
-type AlbumProps =
-  | {
-      cover: string;
-      desc: string;
-      name: string;
-    }
-  | undefined;
+type AlbumProps = {
+  cover?: string;
+  desc: string;
+  name: string;
+  isPrivate: boolean;
+  ownerId: string;
+};
 
 export default function AlbumDetailsPage() {
   const params = useParams();
-  const [albumRef] = useState<DocumentReference<DocumentData, DocumentData>>(
-    doc(db, `albums/${params.albumId}`)
-  );
+  const user = auth.currentUser!;
+  const [albumRef] = useState<DocumentReference<DocumentData, DocumentData>>(doc(db, `albums/${params.albumId}`));
   const [photosRef] = useState<CollectionReference<DocumentData, DocumentData>>(
     collection(db, `albums/${params.albumId}/photos`)
   );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
   const [photos, setPhotos] = useState<PhotoProps[]>([]);
-  const [album, setAlbum] = useState<AlbumProps>(undefined);
+  const [album, setAlbum] = useState<AlbumProps | undefined>(undefined);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,18 +53,15 @@ export default function AlbumDetailsPage() {
     fetchData();
   }, [photosRef, albumRef]);
 
-  if (error) return <NotFound />;
   if (isLoading) return null;
+  if (error || !album) return <NotFound />;
 
   const handleDelete = async () => {
-    if (photos.length > 0) {
-      return alert(ALBUM_DELETION_WARNING);
-    }
+    if (photos.length > 0) return alert(ALBUM_DELETION_WARNING);
 
-    const docRef = doc(db, "albums", params.albumId!);
-    const albumData = (await getDoc(docRef)).data();
+    const albumData = (await getDoc(albumRef)).data();
     try {
-      await deleteDoc(docRef);
+      await deleteDoc(albumRef);
       if (albumData && albumData.cover) {
         const coverRef = ref(storage, `covers/${params.albumId}`);
         await deleteObject(coverRef);
@@ -79,82 +75,81 @@ export default function AlbumDetailsPage() {
 
   return (
     <Wrapper>
-      <Details>
-        <div>
-          {album ? (
-            <span className="strong">{album.name}</span>
-          ) : (
-            <span className="strong">"ALBUM NAME"</span>
-          )}{" "}
-          ({photos.length} photos) <br />
-          {album ? <Image src={album.cover} alt={album.cover} /> : null}
-        </div>
-        <Button onClick={handleDelete}>{ALBUM_UI.delete}</Button>
+      <Details $bg={album.cover}>
+        <span className="strong">{album.name}</span>
+        <span>
+          {photos.length < 1 ? "No photos" : photos.length === 1 ? `${photos.length} photo` : `${photos.length} photos`}
+        </span>
+        {album.ownerId === user.uid ? (
+          <Button className="btn__delete" onClick={handleDelete} value={ALBUM_UI.delete} />
+        ) : null}
       </Details>
       {photos.length === 0 ? (
-        <>
-          <div>{EMPTY_ALBUM}</div>
-        </>
+        <div>{EMPTY_ALBUM}</div>
       ) : (
-        <>
-          <Photos>
-            {photos.map(({ photo, id }, i) => (
-              <Link to={`/albums/${params.albumId}/${id}`} key={i}>
-                <div>
-                  <FramedImage url={photo} size="smallPhoto" />
-                </div>
-              </Link>
-            ))}
-          </Photos>
-        </>
+        <Photos>
+          {photos.map(({ photo, id }, i) => (
+            <div key={i} onClick={() => navigate(`/albums/${params.albumId}/${id}`)}>
+              <FramedImage key={i} url={photo} size="smallPhoto" />
+            </div>
+          ))}
+        </Photos>
       )}
-      <Button onClick={() => navigate(`/albums/${params.albumId}/add`)}>{ALBUM_UI.add}</Button>
+      <Button onClick={() => navigate(`/albums/${params.albumId}/add`)} value={ALBUM_UI.add} />
     </Wrapper>
   );
 }
-
-const Details = styled.div`
-  border-radius: 12px;
-  background: #b7e0ee;
-  width: 100%;
-  height: 150px;
-  padding: 12px;
-  display: flex;
-
-  .strong {
-    font-size: 1.2rem;
-    font-weight: 700;
-  }
-`;
-
-const Image = styled.img`
-  width: 150px;
-`;
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 18px;
+  width: 100%;
+  min-width: 230px;
+  max-width: 800px;
+  word-wrap: break-word;
 `;
 
-const Photos = styled.div`
+const Details = styled.div<{ $bg?: string }>`
+  position: relative;
+  border-radius: 12px;
+  background-image: linear-gradient(to bottom, rgba(3, 17, 37, 0.9), rgba(20, 121, 183, 0.619)),
+    url(${({ $bg }) => ($bg ? $bg : null)});
+  background-size: cover;
+  background-position: 0 25%;
+  width: 100%;
+  height: 150px;
+  padding: 24px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  max-width: 500px;
-
-  img {
-    border: 1px solid #a5adb0;
+  flex-direction: column;
+  justify-content: space-between;
+  color: white;
+  .strong {
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  .btn__delete {
+    position: absolute;
+    top: 0;
+    right: 0;
   }
 `;
 
-const Button = styled.button`
+const Photos = styled.div`
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  width: 100%;
+`;
+
+const Button = styled.input.attrs({ type: "button" })`
   border: none;
   border-radius: 12px;
   background: #167ade;
   color: white;
   margin: 12px;
-  padding: 18px;
+  padding: 4px 18px;
   max-width: 140px;
+  cursor: pointer;
 `;
