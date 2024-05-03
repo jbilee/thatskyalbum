@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { RiDeleteBin4Fill } from "react-icons/ri";
 import UserNameTag from "./UserNameTag";
 import { db } from "../firebase";
+import { getStringDate } from "../utils/functions";
 import type { OwnerProps } from "../routes/home";
 
 type CommentsProps = {
@@ -55,7 +56,7 @@ export default function Comments({ comments, currentUser, handleDelete }: Commen
                     <UserNameTag name={displayName} />
                     <Comment>{text}</Comment>
                     {currentUser?.uid === uid ? <RiDeleteBin4Fill onClick={() => handleDelete(id, uid)} /> : null}
-                    {time}
+                    {getStringDate(time)}
                   </div>
                 );
               })

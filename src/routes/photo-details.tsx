@@ -1,14 +1,13 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { DocumentData, DocumentReference, deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
 import styled from "styled-components";
 import Comments from "../components/Comments";
 import FramedImage from "../components/FramedImage";
 import NewComment from "../components/NewComment";
 import NotFound from "../components/NotFound";
-import { auth, db, storage } from "../firebase";
-import { getDate } from "../utils/functions";
+import { type DocRef, auth, db, storage, type ColRef } from "../firebase";
 import { PHOTO_UI } from "../utils/strings";
 import type { CommentProps } from "../components/Comments";
 
@@ -17,50 +16,49 @@ type PhotoProps = {
   photo: string;
   title: string;
   desc: string;
-  comments?: CommentProps[];
 };
 
 export default function PhotoDetailsPage() {
   const params = useParams();
   const [error, setError] = useState(false);
   const [photo, setPhoto] = useState<PhotoProps | null>(null);
-  const [photoRef] = useState<DocumentReference<DocumentData>>(
-    doc(db, `albums/${params.albumId}/photos`, params.photoId!)
-  );
+  const [comments, setComments] = useState<CommentProps[] | null>(null);
+  const [photoRef] = useState<DocRef>(doc(db, `albums/${params.albumId}/photos`, params.photoId!));
+  const [commentRef] = useState<ColRef>(collection(db, `albums/${params.albumId}/photos/${params.photoId!}/comments`));
   const user = auth.currentUser;
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
-      const snapshotData = (await getDoc(photoRef)).data();
-      if (!snapshotData) return setError(true);
-      const data = { ...snapshotData } as PhotoProps;
-      setPhoto({ ...data });
+      const photoSnapshot = (await getDoc(photoRef)).data();
+      if (!photoSnapshot) return setError(true);
+      setPhoto({ ...photoSnapshot } as PhotoProps);
+
+      const commentSnapshot = await getDocs(commentRef);
+      const userComments = commentSnapshot.docs.map((doc) => {
+        const comment = doc.data();
+        return { ...comment, id: doc.id } as CommentProps;
+      });
+      userComments.sort((a, b) => a.time - b.time);
+      setComments(userComments);
     };
 
     fetchData();
-  }, [params.albumId, params.photoId, photoRef]);
+  }, [params.albumId, params.photoId, photoRef, commentRef]);
 
   if (error) return <NotFound />;
 
   const handleComment = async (comment: string, callback: Dispatch<SetStateAction<string>>) => {
     if (!user || comment === "" || !photo) return;
+    const id = crypto.randomUUID();
     const newComment = {
       uid: user.uid,
       text: comment,
-      time: getDate(),
-      id: crypto.randomUUID(),
+      time: Date.now(),
     };
-    const comments = photo.comments ? [...photo.comments, newComment] : [newComment];
     try {
-      await updateDoc(photoRef, { comments });
-      setPhoto(
-        (prev) =>
-          ({
-            ...prev,
-            comments,
-          } as PhotoProps)
-      );
+      await setDoc(doc(db, `albums/${params.albumId}/photos/${params.photoId!}/comments`, id), newComment);
+      setComments((prev) => (prev ? [...prev, { ...newComment, id }] : [{ ...newComment, id }]));
       callback("");
     } catch (e) {
       console.log(e);
@@ -69,10 +67,11 @@ export default function PhotoDetailsPage() {
   };
 
   const deleteComment = async (id: string, uid: string) => {
-    if (!user || user.uid !== uid || !photo || !photo.comments) return;
-    const filteredComments = photo.comments.filter((comment) => comment.id !== id);
-    await updateDoc(photoRef, { comments: filteredComments });
-    setPhoto((prev) => ({ ...prev, comments: filteredComments } as PhotoProps));
+    if (!user || user.uid !== uid || !photo || !comments) return;
+    const filteredComments = comments.filter((comment) => comment.id !== id);
+    const commentRef = doc(db, `albums/${params.albumId}/photos/${params.photoId!}/comments`, id);
+    await deleteDoc(commentRef);
+    setComments(filteredComments);
   };
 
   const deletePhoto = async () => {
@@ -100,7 +99,7 @@ export default function PhotoDetailsPage() {
           </div>
           <div>
             <h1>{PHOTO_UI.comments}</h1>
-            <Comments comments={photo.comments} currentUser={user} handleDelete={deleteComment} />
+            <Comments comments={comments || []} currentUser={user} handleDelete={deleteComment} />
             <NewComment handleComment={handleComment} />
           </div>
         </>

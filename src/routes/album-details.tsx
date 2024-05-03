@@ -5,9 +5,8 @@ import { deleteObject, ref } from "firebase/storage";
 import styled from "styled-components";
 import FramedImage from "../components/FramedImage";
 import NotFound from "../components/NotFound";
-import { auth, db, storage } from "../firebase";
+import { type ColRef, type DocRef, auth, db, storage } from "../firebase";
 import { ALBUM_DELETION_WARNING, ALBUM_UI, EMPTY_ALBUM } from "../utils/strings";
-import type { CollectionReference, DocumentData, DocumentReference } from "firebase/firestore";
 
 type PhotoProps = {
   id: string;
@@ -25,10 +24,8 @@ type AlbumProps = {
 export default function AlbumDetailsPage() {
   const params = useParams();
   const user = auth.currentUser!;
-  const [albumRef] = useState<DocumentReference<DocumentData, DocumentData>>(doc(db, `albums/${params.albumId}`));
-  const [photosRef] = useState<CollectionReference<DocumentData, DocumentData>>(
-    collection(db, `albums/${params.albumId}/photos`)
-  );
+  const [albumRef] = useState<DocRef>(doc(db, `albums/${params.albumId}`));
+  const [photosRef] = useState<ColRef>(collection(db, `albums/${params.albumId}/photos`));
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
   const [photos, setPhotos] = useState<PhotoProps[]>([]);

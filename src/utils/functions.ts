@@ -1,4 +1,4 @@
-export const getDate = () => {
-  const localeString = new Date().toLocaleDateString("ja-JP");
+export const getStringDate = (epoch: number) => {
+  const localeString = new Date(epoch).toLocaleDateString("ja-JP");
   return localeString;
 };
