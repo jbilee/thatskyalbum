@@ -138,9 +138,12 @@ const Details = styled.div<{ $bg?: string }>`
 
 const Photos = styled.div`
   display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   width: 100%;
+  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  @media (min-width: 700px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 `;
 
 const Button = styled.input.attrs({ type: "button" })`

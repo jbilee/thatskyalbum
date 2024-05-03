@@ -6,7 +6,7 @@ export const IMAGE_SIZES = {
   },
   smallPhoto: {
     width: "100%",
-    height: "100%",
+    height: "150px",
     radius: "0",
   },
   largePhoto: {
