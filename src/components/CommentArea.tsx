@@ -8,7 +8,7 @@ import { db } from "../firebase";
 import { getStringDate } from "../utils/functions";
 import type { OwnerProps } from "../routes/home";
 
-type CommentsProps = {
+type CommentAreaProps = {
   comments: CommentProps[] | undefined;
   currentUser: User | null;
   handleDelete: (id: string, uid: string) => void;
@@ -21,7 +21,7 @@ export type CommentProps = {
   id: string;
 };
 
-export default function Comments({ comments, currentUser, handleDelete }: CommentsProps) {
+export default function CommentArea({ comments, currentUser, handleDelete }: CommentAreaProps) {
   const [commentOwners, setCommentOwners] = useState<OwnerProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -42,6 +42,7 @@ export default function Comments({ comments, currentUser, handleDelete }: Commen
 
     fetchData();
   }, [comments]);
+
   return (
     <Wrapper>
       {isLoading ? (
@@ -55,8 +56,10 @@ export default function Comments({ comments, currentUser, handleDelete }: Commen
                   <div key={i}>
                     <UserNameTag name={displayName} />
                     <Comment>{text}</Comment>
-                    {currentUser?.uid === uid ? <RiDeleteBin4Fill onClick={() => handleDelete(id, uid)} /> : null}
-                    {getStringDate(time)}
+                    <DateRow>
+                      <span>{getStringDate(time)}</span>
+                      {currentUser?.uid === uid ? <TrashIcon onClick={() => handleDelete(id, uid)} /> : null}
+                    </DateRow>
                   </div>
                 );
               })
@@ -71,14 +74,31 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 4px;
-  height: 500px;
-  overflow-y: auto;
+  @media (min-width: 1200px) {
+    overflow-y: auto;
+    height: 500px;
+    min-width: 330px;
+  }
 `;
 
 const Container = styled.div`
   display: flex;
+  line-height: 1.5rem;
   flex-direction: column;
-  margin-top: auto;
+  gap: 1.3rem;
+`;
+
+const DateRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  & > span {
+    font-size: 0.8rem;
+  }
+`;
+
+const TrashIcon = styled(RiDeleteBin4Fill)`
+  cursor: pointer;
 `;
 
 const Comment = styled.div`

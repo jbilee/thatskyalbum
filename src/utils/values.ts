@@ -10,9 +10,9 @@ export const IMAGE_SIZES = {
     radius: "0",
   },
   largePhoto: {
-    width: "900px",
+    width: "100%",
     height: "460px",
-    radius: "30px",
+    radius: "26px",
   },
 };
 

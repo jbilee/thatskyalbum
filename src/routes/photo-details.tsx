@@ -3,14 +3,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { collection, deleteDoc, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
 import styled from "styled-components";
-import Comments from "../components/Comments";
+import { AiOutlineClose } from "react-icons/ai";
+import CommentArea from "../components/CommentArea";
 import FramedImage from "../components/FramedImage";
 import NewComment from "../components/NewComment";
 import NotFound from "../components/NotFound";
 import { type DocRef, auth, db, storage, type ColRef } from "../firebase";
 import { PHOTO_UI } from "../utils/strings";
-import type { CommentProps } from "../components/Comments";
-import { AiOutlineClose } from "react-icons/ai";
+import type { CommentProps } from "../components/CommentArea";
 
 type PhotoProps = {
   ownerId: string;
@@ -116,7 +116,7 @@ export default function PhotoDetailsPage() {
           </div>
           <div>
             <h1>{PHOTO_UI.comments}</h1>
-            <Comments comments={comments || []} currentUser={user} handleDelete={deleteComment} />
+            <CommentArea comments={comments || []} currentUser={user} handleDelete={deleteComment} />
             <NewComment handleComment={handleComment} />
           </div>
         </>
@@ -127,7 +127,11 @@ export default function PhotoDetailsPage() {
 
 const Wrapper = styled.div`
   display: flex;
+  flex-direction: column;
   gap: 12px;
+  @media (min-width: 1200px) {
+    flex-direction: row;
+  }
 `;
 
 const Backdrop = styled.div`
