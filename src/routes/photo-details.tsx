@@ -10,6 +10,7 @@ import NotFound from "../components/NotFound";
 import { type DocRef, auth, db, storage, type ColRef } from "../firebase";
 import { PHOTO_UI } from "../utils/strings";
 import type { CommentProps } from "../components/Comments";
+import { AiOutlineClose } from "react-icons/ai";
 
 type PhotoProps = {
   ownerId: string;
@@ -25,6 +26,7 @@ export default function PhotoDetailsPage() {
   const [comments, setComments] = useState<CommentProps[] | null>(null);
   const [photoRef] = useState<DocRef>(doc(db, `albums/${params.albumId}/photos`, params.photoId!));
   const [commentRef] = useState<ColRef>(collection(db, `albums/${params.albumId}/photos/${params.photoId!}/comments`));
+  const [isViewMode, setIsViewMode] = useState(false);
   const user = auth.currentUser;
   const navigate = useNavigate();
 
@@ -87,12 +89,27 @@ export default function PhotoDetailsPage() {
     }
   };
 
+  const handleClick = () => {
+    setIsViewMode((prev) => !prev);
+  };
+
   return (
     <Wrapper>
       {photo ? (
         <>
+          {isViewMode ? (
+            <>
+              <Backdrop />
+              <ViewModeImage>
+                <img src={photo.photo} />
+              </ViewModeImage>
+              <CloseBtn onClick={handleClick} />
+            </>
+          ) : null}
           <div>
-            <FramedImage url={photo.photo} size="largePhoto" cursorType="default" />
+            <div onClick={handleClick}>
+              <FramedImage url={photo.photo} size="largePhoto" cursorType="pointer" />
+            </div>
             {user?.uid === photo.ownerId ? <button onClick={deletePhoto}>{PHOTO_UI.delete}</button> : null}
             <h2>{photo.title || "Untitled"}</h2>
             <p>{photo.desc}</p>
@@ -111,4 +128,39 @@ export default function PhotoDetailsPage() {
 const Wrapper = styled.div`
   display: flex;
   gap: 12px;
+`;
+
+const Backdrop = styled.div`
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+`;
+
+const ViewModeImage = styled.div`
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  place-content: center center;
+  & > img {
+    width: 100%;
+    height: 100%;
+  }
+`;
+
+const CloseBtn = styled(AiOutlineClose)`
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  color: white;
+  font-size: 5rem;
+  @media (min-width: 500px) {
+    font-size: 2.5rem;
+  }
+  cursor: pointer;
 `;
