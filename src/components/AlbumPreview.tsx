@@ -13,7 +13,7 @@ export default function AlbumPreview({ id, name, ownerId, cover }: AlbumProps) {
   return (
     <Wrapper onClick={handleClick}>
       {cover ? (
-        <FramedImage url={cover} size="album" />
+        <FramedImage url={cover} size="album" cursorType="pointer" />
       ) : (
         <Image>
           <img src={Logo} alt="Album using Sky logo as default cover" />
@@ -30,9 +30,8 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 6px;
   border-radius: 6px;
-  border: 1px solid #cacaca;
+  border: 1px solid #abd8f1;
   background: #b7e0ee;
-  width: 300px;
   padding: 20px;
   cursor: pointer;
   &:hover {

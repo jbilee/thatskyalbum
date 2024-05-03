@@ -71,7 +71,13 @@ export default function HomePage() {
 }
 
 const List = styled.div`
-  display: flex;
+  display: grid;
   gap: 12px;
-  flex-wrap: wrap;
+  grid-template-columns: repeat(2, minmax(230px, 1fr));
+  @media (min-width: 900px) {
+    grid-template-columns: repeat(3, minmax(250px, 1fr));
+  }
+  @media (min-width: 1400px) {
+    grid-template-columns: repeat(5, minmax(250px, 1fr));
+  }
 `;
