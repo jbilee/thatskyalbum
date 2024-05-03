@@ -12,12 +12,10 @@ type PhotoFormState = {
   title: string;
   desc: string;
   photo: File | null;
+  time: number;
 };
 
-type Action =
-  | { type: "title"; payload: string }
-  | { type: "desc"; payload: string }
-  | { type: "file"; payload: File };
+type Action = { type: "title"; payload: string } | { type: "desc"; payload: string } | { type: "file"; payload: File };
 
 const photoReducer: Reducer<PhotoFormState, Action> = (state, action) => {
   switch (action.type) {
@@ -43,6 +41,7 @@ export default function AddPhotoPage() {
     title: "",
     desc: "",
     photo: null,
+    time: 0,
   });
   const params = useParams();
 
@@ -69,8 +68,8 @@ export default function AddPhotoPage() {
       doc = await addDoc(storeRef, {
         title,
         desc,
-        owner: user.displayName,
         ownerId: user.uid,
+        time: Date.now(),
       });
       const resizedImage = await resizeImage(photo, "photo");
       const storageRef = ref(storage, `photos/${doc.id}`);
@@ -103,11 +102,7 @@ export default function AddPhotoPage() {
         </div>
         <div>
           <label htmlFor="desc">{FORM_UI.photo.desc}</label>
-          <textarea
-            id="desc"
-            value={desc}
-            onChange={(e) => dispatch({ type: "desc", payload: e.target.value })}
-          />
+          <textarea id="desc" value={desc} onChange={(e) => dispatch({ type: "desc", payload: e.target.value })} />
         </div>
         <input type="submit" value={FORM_UI.photo.btn} />
       </form>

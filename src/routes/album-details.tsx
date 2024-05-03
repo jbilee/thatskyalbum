@@ -11,6 +11,7 @@ import { ALBUM_DELETION_WARNING, ALBUM_UI, EMPTY_ALBUM } from "../utils/strings"
 type PhotoProps = {
   id: string;
   photo: string;
+  time: number;
 };
 
 type AlbumProps = {
@@ -40,9 +41,10 @@ export default function AlbumDetailsPage() {
       setAlbum(albumData as AlbumProps);
       const photosSnapshot = await getDocs(photosRef);
       const photos = photosSnapshot.docs.map((doc) => {
-        const { photo } = doc.data();
-        return { photo, id: doc.id } as PhotoProps;
+        const { photo, time } = doc.data();
+        return { photo, time, id: doc.id } as PhotoProps;
       });
+      photos.sort((a, b) => a.time - b.time);
       setPhotos(photos);
       setIsLoading(false);
     };
