@@ -77,7 +77,17 @@ const Wrapper = styled.div`
   @media (min-width: 1200px) {
     overflow-y: auto;
     height: 500px;
-    min-width: 330px;
+    width: 340px;
+  }
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #cacaca;
+    border-radius: 10px;
   }
 `;
 
@@ -107,4 +117,5 @@ const Comment = styled.div`
   padding: 12px;
   margin-left: auto;
   white-space: pre-wrap;
+  word-wrap: break-word;
 `;

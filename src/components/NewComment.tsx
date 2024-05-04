@@ -25,7 +25,7 @@ export default function NewComment({ handleComment }: NewCommentProps) {
         handleComment(comment, setComment);
       }}
     >
-      <textarea value={comment} onChange={handleInput} onKeyDown={handleCtrlEnter} />
+      <textarea value={comment} rows={3} onChange={handleInput} onKeyDown={handleCtrlEnter} />
       <input type="submit" value="Comment" />
     </form>
   );

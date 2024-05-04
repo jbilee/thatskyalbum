@@ -50,5 +50,5 @@ const Header = styled.div`
 const Main = styled.div`
   display: flex;
   justify-content: center;
-  padding: 24px;
+  padding: 16px;
 `;

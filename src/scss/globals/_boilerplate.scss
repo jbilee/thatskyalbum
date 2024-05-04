@@ -4,22 +4,27 @@
   box-sizing: border-box;
 }
 
-h1,
-h2,
-h3 {
+h1.bold,
+h2.bold,
+h3.bold {
   font-weight: 700;
 }
 
-h1 {
+h1.heading {
   font-size: util.$largeTitle;
 }
 
-h2 {
+h2.heading {
   font-size: util.$mediumTitle;
 }
 
-h3 {
+h3.heading {
   font-size: util.$smallTitle;
+}
+
+hr {
+  border: none;
+  border-bottom: 1px solid util.$primaryGray;
 }
 
 a {
@@ -38,4 +43,18 @@ form {
 
 textarea {
   resize: none;
+  border-color: util.$primaryGray;
+  border-radius: 0.5rem;
+  padding: 6px;
+}
+
+button,
+input[type="button"],
+input[type="submit"] {
+  border: none;
+  border-radius: 50px;
+  background: util.$primaryBlue;
+  color: white;
+  padding: 4px 18px;
+  cursor: pointer;
 }

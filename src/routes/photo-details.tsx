@@ -70,10 +70,13 @@ export default function PhotoDetailsPage() {
 
   const deleteComment = async (id: string, uid: string) => {
     if (!user || user.uid !== uid || !photo || !comments) return;
-    const filteredComments = comments.filter((comment) => comment.id !== id);
-    const commentRef = doc(db, `albums/${params.albumId}/photos/${params.photoId!}/comments`, id);
-    await deleteDoc(commentRef);
-    setComments(filteredComments);
+    const response = confirm("Delete this comment?");
+    if (response) {
+      const filteredComments = comments.filter((comment) => comment.id !== id);
+      const commentRef = doc(db, `albums/${params.albumId}/photos/${params.photoId!}/comments`, id);
+      await deleteDoc(commentRef);
+      setComments(filteredComments);
+    }
   };
 
   const deletePhoto = async () => {
@@ -111,11 +114,12 @@ export default function PhotoDetailsPage() {
               <FramedImage url={photo.photo} size="largePhoto" cursorType="pointer" />
             </div>
             {user?.uid === photo.ownerId ? <button onClick={deletePhoto}>{PHOTO_UI.delete}</button> : null}
-            <h2>{photo.title || "Untitled"}</h2>
+            <h1 className="bold heading">{photo.title || "Untitled"}</h1>
             <p>{photo.desc}</p>
           </div>
           <div>
-            <h1>{PHOTO_UI.comments}</h1>
+            <h2 className="heading">{PHOTO_UI.comments}</h2>
+            <hr />
             <CommentArea comments={comments || []} currentUser={user} handleDelete={deleteComment} />
             <NewComment handleComment={handleComment} />
           </div>

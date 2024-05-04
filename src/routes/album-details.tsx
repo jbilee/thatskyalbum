@@ -80,7 +80,7 @@ export default function AlbumDetailsPage() {
           {photos.length < 1 ? "No photos" : photos.length === 1 ? `${photos.length} photo` : `${photos.length} photos`}
         </span>
         {album.ownerId === user.uid ? (
-          <Button className="btn__delete" onClick={handleDelete} value={ALBUM_UI.delete} />
+          <input type="button" className="btn__delete" onClick={handleDelete} value={ALBUM_UI.delete} />
         ) : null}
       </Details>
       {photos.length === 0 ? (
@@ -94,7 +94,7 @@ export default function AlbumDetailsPage() {
           ))}
         </Photos>
       )}
-      <Button onClick={() => navigate(`/albums/${params.albumId}/add`)} value={ALBUM_UI.add} />
+      <input type="button" onClick={() => navigate(`/albums/${params.albumId}/add`)} value={ALBUM_UI.add} />
     </Wrapper>
   );
 }
@@ -143,15 +143,4 @@ const Photos = styled.div`
   @media (min-width: 700px) {
     grid-template-columns: repeat(3, 1fr);
   }
-`;
-
-const Button = styled.input.attrs({ type: "button" })`
-  border: none;
-  border-radius: 12px;
-  background: #167ade;
-  color: white;
-  margin: 12px;
-  padding: 4px 18px;
-  max-width: 140px;
-  cursor: pointer;
 `;
