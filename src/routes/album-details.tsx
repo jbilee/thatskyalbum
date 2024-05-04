@@ -30,7 +30,7 @@ export default function AlbumDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
   const [photos, setPhotos] = useState<PhotoProps[]>([]);
-  const [album, setAlbum] = useState<AlbumProps | undefined>(undefined);
+  const [album, setAlbum] = useState<AlbumProps | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {

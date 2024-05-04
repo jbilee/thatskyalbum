@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom";
 import { collection, getDocs, or, orderBy, query, where } from "firebase/firestore";
 import styled from "styled-components";
 import AlbumPreview from "../components/AlbumPreview";
+import SkeletonAlbumPreview from "../components/SkeletonAlbumPreview";
 import { auth, db } from "../firebase";
 
 export type AlbumProps = {
@@ -19,6 +20,7 @@ export type OwnerProps = {
 
 export default function HomePage() {
   const user = auth.currentUser;
+  const [isLoading, setIsLoading] = useState(true);
   const [albums, setAlbums] = useState<AlbumProps[]>([]);
   const [albumOwners, setAlbumOwners] = useState<OwnerProps[]>([]);
 
@@ -45,6 +47,7 @@ export default function HomePage() {
         const owners = ownerSnapshot.docs.map((doc) => doc.data() as OwnerProps);
         setAlbums(albums);
         setAlbumOwners(owners);
+        setIsLoading(false);
       } catch (e) {
         console.log(e);
       }
@@ -55,15 +58,26 @@ export default function HomePage() {
 
   return user ? (
     <List>
-      {albums.map(({ ownerId, name, cover, id }, i) => (
-        <AlbumPreview
-          key={i}
-          id={id}
-          name={name}
-          ownerId={albumOwners.find((owner) => owner.id === ownerId)?.name ?? "Unknown"}
-          cover={cover}
-        />
-      ))}
+      {isLoading ? (
+        <>
+          <SkeletonAlbumPreview />
+          <SkeletonAlbumPreview />
+          <SkeletonAlbumPreview />
+          <SkeletonAlbumPreview />
+          <SkeletonAlbumPreview />
+          <SkeletonAlbumPreview />
+        </>
+      ) : (
+        albums.map(({ ownerId, name, cover, id }, i) => (
+          <AlbumPreview
+            key={i}
+            id={id}
+            name={name}
+            ownerId={albumOwners.find((owner) => owner.id === ownerId)?.name ?? "Unknown"}
+            cover={cover}
+          />
+        ))
+      )}
     </List>
   ) : (
     <Navigate to="/login" />
@@ -73,9 +87,15 @@ export default function HomePage() {
 const List = styled.div`
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(2, minmax(230px, 1fr));
-  @media (min-width: 900px) {
+  grid-template-columns: repeat(1, minmax(230px, 1fr));
+  @media (min-width: 500px) {
+    grid-template-columns: repeat(2, minmax(230px, 1fr));
+  }
+  @media (min-width: 780px) {
     grid-template-columns: repeat(3, minmax(250px, 1fr));
+  }
+  @media (min-width: 1150px) {
+    grid-template-columns: repeat(4, minmax(250px, 1fr));
   }
   @media (min-width: 1400px) {
     grid-template-columns: repeat(5, minmax(250px, 1fr));
