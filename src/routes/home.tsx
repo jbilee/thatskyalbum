@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { collection, getDocs, or, orderBy, query, where } from "firebase/firestore";
 import styled from "styled-components";
 import AlbumPreview from "../components/AlbumPreview";
-import SkeletonAlbumPreview from "../components/SkeletonAlbumPreview";
+import SkeletonAlbumPreview from "../components/skeletons/SkeletonAlbumPreview";
 import { auth, db } from "../firebase";
 
 export type AlbumProps = {

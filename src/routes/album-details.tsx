@@ -5,6 +5,7 @@ import { deleteObject, ref } from "firebase/storage";
 import styled from "styled-components";
 import FramedImage from "../components/FramedImage";
 import NotFound from "../components/NotFound";
+import SkeletonAlbumPage from "../components/skeletons/SkeletonAlbumPage";
 import { type ColRef, type DocRef, auth, db, storage } from "../firebase";
 import { ALBUM_DELETION_WARNING, ALBUM_UI, EMPTY_ALBUM } from "../utils/strings";
 
@@ -52,7 +53,7 @@ export default function AlbumDetailsPage() {
     fetchData();
   }, [photosRef, albumRef]);
 
-  if (isLoading) return null;
+  if (isLoading) return <SkeletonAlbumPage />;
   if (error || !album) return <NotFound />;
 
   const handleDelete = async () => {
