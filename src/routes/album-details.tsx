@@ -59,13 +59,13 @@ export default function AlbumDetailsPage() {
   const handleDelete = async () => {
     if (photos.length > 0) return alert(ALBUM_DELETION_WARNING);
 
-    const albumData = (await getDoc(albumRef)).data();
     try {
-      await deleteDoc(albumRef);
-      if (albumData && albumData.cover) {
+      // Must delete storage file before deleting the album data in Firestore
+      if (album && album.cover) {
         const coverRef = ref(storage, `covers/${params.albumId}`);
         await deleteObject(coverRef);
       }
+      await deleteDoc(albumRef);
     } catch (e) {
       console.log(e);
     } finally {
@@ -114,7 +114,7 @@ const Wrapper = styled.div`
 const Details = styled.div<{ $bg?: string }>`
   position: relative;
   border-radius: 12px;
-  background-image: linear-gradient(to bottom, rgba(3, 17, 37, 0.9), rgba(20, 121, 183, 0.619)),
+  background-image: linear-gradient(to bottom, rgba(3, 17, 37, 0.75), rgba(20, 121, 183, 0.45)),
     url(${({ $bg }) => ($bg ? $bg : null)});
   background-size: cover;
   background-position: 0 25%;
@@ -133,6 +133,9 @@ const Details = styled.div<{ $bg?: string }>`
     position: absolute;
     top: 0;
     right: 0;
+  }
+  @media (min-width: 700px) {
+    height: 180px;
   }
 `;
 
